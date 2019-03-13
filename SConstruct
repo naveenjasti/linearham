@@ -6,7 +6,6 @@ import os
 from SCons.Script import Environment
 import SCons.Script as Script
 
-
 #### Set up command line arguments/options
 
 # partis arguments
@@ -357,10 +356,11 @@ if options["run_linearham"]:
 
     @nest.add_target()
     def naive_tabulation(outdir, c):
-        outbase = os.path.join(outdir, "aa_naive_seqs")
+        outbase = outdir
+        seed = str(options.get("seed_seq", [''])[0])
         naive_tabulation = env.Command(
-            outbase + ".fasta", c["linearham_final_output"],
-            "scripts/tabulate_naive_probs.py $SOURCE --output-base " + outbase)
+            os.path.join(outbase, "aa_naive_seqs.fasta"), c["linearham_final_output"],
+            "scripts/tabulate_naive_probs.py $SOURCE --partis-yaml-file={} --seed-name={} --output-base={}".format(str(c["partis_yaml_file"]), seed, outbase))
         env.Depends(naive_tabulation, "scripts/tabulate_naive_probs.py")
         return naive_tabulation
 
