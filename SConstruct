@@ -316,6 +316,7 @@ if options["run_linearham"]:
         env.Depends(revbayes_output, "lib/revbayes/projects/cmake/rb")
         return revbayes_output
 
+    
     @nest.add_target()
     def linearham_intermediate_output(outdir, c):
         linearham_intermediate_output = env.Command(
@@ -338,6 +339,15 @@ if options["run_linearham"]:
                 for burnin_frac in options["burnin_frac"]
                 for subsamp_frac in options["subsamp_frac"]]
 
+    @nest.add_target()
+    def revbayes_ess(outdir, c):
+        revbayes_ess = env.Command(
+            os.path.join(outdir, 'ESS.txt'),
+            c["revbayes_output"][1],
+            "Rscript ESS.R -f $SOURCE -b {} -o {}".format(int(c["linearham_setting"]["burnin_frac"]*c["revbayes_setting"]["mcmc_iter"]), outdir))
+        env.Depends(revbayes_ess, "./ESS.R")
+        return revbayes_output
+    
     @nest.add_target()
     def linearham_final_output(outdir, c):
         linearham_final_output = env.Command(
